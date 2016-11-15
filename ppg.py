@@ -5,14 +5,13 @@ import os
 import getopt
 import string
 import itertools
+import argparse
+
+__version__ = '0.0.1'
 
 # global variables
-inputName = "intput.lst"
-outputName = "output.lst"
-maxSize = -1
 permutations = []
-minl = -1
-maxl = -1
+CONST_MAX = 99999999999999
 
 
 def usage():
@@ -28,14 +27,89 @@ def usage():
           "is NOT correct.\n")
     sys.exit(0)
     
-def main():
-    global inputName
-    global outputName
-    global maxSize
-    global permutations
-    global minl
-    global maxl
     
+def run(input_file, output_file, max_length, min_length, max_filesize):
+    global permutations
+    global CONST_MAX
+    
+    max_length = max_length
+    min_length = min_length
+    max_filesize = max_filesize
+    
+    # Read contents of input file into a list
+    with open(input_file) as f:
+        lines = [line.rstrip('\n') for line in open(input_file)]
+        
+    generate(lines, max_filesize)
+    
+    formatSize(min_length, max_length)
+    
+    print(permutations)
+    
+    sys.exit(0)
+    
+    
+def commandline():
+    global CONST_MAX
+
+    parser = argparse.ArgumentParser(
+            description='Python script that generates possible password permutations\n'\
+                    'from a given list of words.',
+            epilog="""    Example:
+    markdown-toclify.py ~/Desktop/input.md -o ~/Desktop/output.md
+    Updates for this script will be available at
+    https://github.com/DistantParadox/PasswordPermutationGenerator
+    """,
+            formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    parser.add_argument('InputFile',
+                        metavar='input.lst',
+                        help='path to the input file')
+    parser.add_argument('-o', '--output',
+                        metavar='output.lst',
+                        default='output.lst',
+                        nargs=1,
+                        type=str,
+                        help='path to the output file')
+    parser.add_argument('-n', '--min',
+                        default=0,
+                        type=int,
+                        metavar='min', choices=range(0,CONST_MAX),
+                        help='specify a minimum password length.')
+    parser.add_argument('-m', '--max',
+                        default=CONST_MAX,
+                        type=int,
+                        metavar='max', choices=range(0,CONST_MAX),
+                        help='specify a maximum password length.')
+    parser.add_argument('-b', '--max_size',
+                        metavar='max_size', type=float, nargs=1,
+                        default = -1,
+                        help='specify a maximum output filesize.')
+    parser.add_argument('-v', '--version',
+                        action='version',
+                        version='%s' % __version__)
+
+    args = parser.parse_args()
+
+    '''if args.exclude_h:
+        exclude_h = [int(i) for i in args.exclude_h.split(',')]
+    else:
+        exclude_h = None'''
+
+    cont = run(input_file=args.InputFile,
+                            output_file=args.output,
+                            max_length=args.max,
+                            min_length=args.min,
+                            max_filesize=args.max_size)
+
+    if not args.output:
+        print(cont)
+    
+    
+    
+    #-----------------------------------------
+    '''
     if not len(sys.argv[1:]):
         usage()
         
@@ -52,29 +126,29 @@ def main():
         if o in ("-h", "--help"):
             usage()
         elif o in ("-i", "--input-name"):
-            inputName = a
+            input_file = a
         elif o in ("-o", "--output-name"):
-            outputName = a
+            output_file = a
         elif o in ("-b", "--max-size"):
-            maxSize = a
+            max_filesize = a
         elif o in ("-m", "--min"):
-            minl = int(a)
+            min_length = int(a)
         elif o in ("-x", "--max"):
-            maxl = int(a)
+            max_length = int(a)
         else:
             print("assert false")
             assert False,"Unhandled Option"
         
     
     # Read contents of input file into a list
-    with open(inputName) as f:
-        lines = [line.rstrip('\n') for line in open(inputName)]
+    with open(input_file) as f:
+        lines = [line.rstrip('\n') for line in open(input_file)]
         
     generate(lines)
     
     formatSize()
     
-    print(permutations)
+    print(permutations)'''
     
         
 '''
@@ -84,15 +158,13 @@ in memory, so the size of the wordlist will depend on your hardware.  In
 the future, this should be optimized to write directly to an external file
 to remove the dependance on physical memory.
 '''
-def generate(lines):
-    global inputName
-    global outputName
-    global maxSize
+def generate(lines, max_filesize):
     global permutations
+    global CONST_MAX
     
-    if maxSize > 0:
+    if max_filesize != -1:
         # work in progress
-        print(list(itertools.permutations(lines, maxSize)))
+        print(list(itertools.permutations(lines, max_filesize)))
     else:
         # create permutations
         tempList = list(itertools.permutations(lines))
@@ -111,24 +183,23 @@ def generate(lines):
 Using the global permutations list, remove necessary items to conform to the
 size restrictions in min and max
 '''
-def formatSize():
+def formatSize(min_length, max_length):
     global permutations
-    global minl
-    global maxl
     
     tempList = []
-    if minl > 0:
+    if min_length > 0:
         for item in permutations:
-            if len(item) >= minl:
+            if len(item) >= min_length:
                 tempList.append(item)
-    permutations = tempList
-    tempList = []
-    if maxl > 0:
+        permutations = tempList
+        tempList = []
+            
+    if max_length > 0:
         for item in permutations:
-            if len(item) <= maxl:
+            if len(item) <= max_length:
                 tempList.append(item)
-    permutations = tempList
+        permutations = tempList
     
     
-        
-main()
+if __name__ == '__main__':
+    commandline()
