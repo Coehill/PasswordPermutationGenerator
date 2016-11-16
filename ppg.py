@@ -50,18 +50,15 @@ def run(input_file, output_file, max_length, min_length, max_filesize):
     
     
 def commandline():
+    
     global CONST_MAX
+    
+    banner()
 
     parser = argparse.ArgumentParser(
+            prog='ppg.py',
             description='Python script that generates possible password permutations\n'\
-                    'from a given list of words.',
-            epilog="""    Example:
-    markdown-toclify.py ~/Desktop/input.md -o ~/Desktop/output.md
-    Updates for this script will be available at
-    https://github.com/DistantParadox/PasswordPermutationGenerator
-    """,
-            formatter_class=argparse.RawTextHelpFormatter
-    )
+                    'from a given list of words.')
 
     parser.add_argument('InputFile',
                         metavar='input.lst',
@@ -91,11 +88,6 @@ def commandline():
                         version='%s' % __version__)
 
     args = parser.parse_args()
-
-    '''if args.exclude_h:
-        exclude_h = [int(i) for i in args.exclude_h.split(',')]
-    else:
-        exclude_h = None'''
 
     cont = run(input_file=args.InputFile,
                             output_file=args.output,
@@ -199,6 +191,22 @@ def formatSize(min_length, max_length):
             if len(item) <= max_length:
                 tempList.append(item)
         permutations = tempList
+        
+def banner():
+    
+    print(
+        
+'      ___         ___         ___     \n' +
+'     /  /\       /  /\       /  /\    \n' +
+'    /  /::\     /  /::\     /  /:/_   \n' +
+'   /  /:/\:\   /  /:/\:\   /  /:/ /\  \n' +
+'  /  /:/~/:/  /  /:/~/:/  /  /:/_/::\ \n' +
+' /__/:/ /:/  /__/:/ /:/  /__/:/__\/\:\\\n' +
+' \  \:\/:/   \  \:\/:/   \  \:\ /~~/:/\n' +
+'  \  \::/     \  \::/     \  \:\  /:/ \n' +
+'   \  \:\      \  \:\      \  \:\/:/  \n' +
+'    \  \:\      \  \:\      \  \::/   \n' +
+'     \__\/       \__\/       \__\/    \n' )
     
     
 if __name__ == '__main__':
