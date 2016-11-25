@@ -13,7 +13,6 @@ __version__ = '0.0.1'
 permutations = []
 CONST_MAX = 99999999999999
 
-
 def usage():
     print("Password Permutation Generator\n")
     print("Usage: ppg.py <min-len> <max-len> [FILE]\n")
@@ -36,6 +35,12 @@ def run(input_file, output_file, max_length, min_length, max_filesize):
     min_length = min_length
     max_filesize = max_filesize
     
+    # hackey workaround for the argument being returned as a list instead of a string
+    if type(output_file) is list:
+        output_file = output_file[0]
+    else:
+        output_file = ""
+    
     # Read contents of input file into a list
     with open(input_file) as f:
         lines = [line.rstrip('\n') for line in open(input_file)]
@@ -44,10 +49,12 @@ def run(input_file, output_file, max_length, min_length, max_filesize):
     
     formatSize(min_length, max_length)
     
-    print(permutations)
+    outputToFile(output_file)
+    
+    if output_file == "":
+        print(permutations)    
     
     sys.exit(0)
-    
     
 def commandline():
     
@@ -65,7 +72,7 @@ def commandline():
                         help='path to the input file')
     parser.add_argument('-o', '--output',
                         metavar='output.lst',
-                        default='output.lst',
+                        default='',
                         nargs=1,
                         type=str,
                         help='path to the output file')
@@ -98,49 +105,6 @@ def commandline():
     if not args.output:
         print(cont)
     
-    
-    
-    #-----------------------------------------
-    '''
-    if not len(sys.argv[1:]):
-        usage()
-        
-    # read the command line options
-    try:
-        # if one of the options requires an arg, then it's followed by a colon
-        opts, args = getopt.getopt(sys.argv[1:],"hi:o:b:m:x:",
-                                   ["help","input-name=", "output-name=", "max-size=", "min=", "max="])
-    except getopt.GetoptError as err:
-        print(str(err))
-        usage()
-        
-    for o,a in opts:
-        if o in ("-h", "--help"):
-            usage()
-        elif o in ("-i", "--input-name"):
-            input_file = a
-        elif o in ("-o", "--output-name"):
-            output_file = a
-        elif o in ("-b", "--max-size"):
-            max_filesize = a
-        elif o in ("-m", "--min"):
-            min_length = int(a)
-        elif o in ("-x", "--max"):
-            max_length = int(a)
-        else:
-            print("assert false")
-            assert False,"Unhandled Option"
-        
-    
-    # Read contents of input file into a list
-    with open(input_file) as f:
-        lines = [line.rstrip('\n') for line in open(input_file)]
-        
-    generate(lines)
-    
-    formatSize()
-    
-    print(permutations)'''
     
         
 '''
@@ -191,6 +155,18 @@ def formatSize(min_length, max_length):
             if len(item) <= max_length:
                 tempList.append(item)
         permutations = tempList
+        
+'''
+Output the permutations list to an external file
+'''
+def outputToFile(filename):
+    global permutations
+    
+    if filename != "":
+        file = open(filename, "w")
+        for word in permutations:
+            file.write(word + "\n")
+        file.close()
         
 def banner():
     
